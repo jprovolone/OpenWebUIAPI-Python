@@ -1,0 +1,8 @@
+# .gitignore
+
+# python
+__pycache__
+
+
+# environment
+.env
