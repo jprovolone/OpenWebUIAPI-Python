@@ -35,7 +35,7 @@ OPENWEBUI_API_KEY=your_api_key_here
 from openwebui_client import OpenWebUIClient
 
 # Initialize the client
-client = OpenWebUIClient()
+client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
 
 # Get available models
 models = client.get_models()
