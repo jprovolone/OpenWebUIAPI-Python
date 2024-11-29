@@ -31,7 +31,7 @@ OPENWEBUI_API_KEY=your_api_key_here
 ---
 ## Usage
 
-# Get all models
+### Get all models
 ```python
 from openwebui_client import OpenWebUI
 
@@ -44,7 +44,7 @@ for model in models:
     print(model.id)
 ```
 
-# Chat Completion
+### Chat Completion
 ```python
 from openwebui_client import OpenWebUI
 
@@ -61,7 +61,7 @@ response = client.create_chat_completion(
 print(response.choices[0].message.content)
 ```
 
-# Chat Completion
+### Chat Completion
 ```python
 from openwebui_client import OpenWebUI
 
@@ -78,7 +78,7 @@ response = client.create_chat_completion(
 print(response.choices[0].message.content)
 ```
 
-# Chat Completion (with files)
+### Chat Completion (with files)
 ```python
 from openwebui_client import OpenWebUI
 
@@ -90,7 +90,7 @@ completion = client.chat_with_file('llama3.2:latest', "What is this document?", 
 print(completion.choices[0].message.content)
 ```
 
-# List files
+### List files
 ```python
 from openwebui_client import OpenWebUI
 
@@ -103,7 +103,7 @@ for file in files:
     print(f"{file.id} - {file.filename}")
 ```
 
-# Get single file by id
+### Get single file by id
 ```python
 from openwebui_client import OpenWebUI
 
@@ -115,7 +115,7 @@ single_file = client.get_file_by_id("SOME_FILE_ID")
 print(single_file.data.content)
 ```
 
-# Delete a file
+### Delete a file
 ```python
 from openwebui_client import OpenWebUI
 
@@ -127,7 +127,7 @@ response = client.delete_file_by_id("SOME_FILE_ID")
 print(f"{response.success} - {response.message}")
 ```
 
-# Update file content
+### Update file content
 ```python
 from openwebui_client import OpenWebUI
 
@@ -139,7 +139,7 @@ response = client.update_file_content_by_id("SOME_FILE_ID", "SOME NEW CONTENT")
 print(f"{response.success} - {response.message}")
 ```
 
-# Upload a new file
+### Upload a new file
 ```python
 from openwebui_client import OpenWebUI
 
