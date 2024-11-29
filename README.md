@@ -25,7 +25,7 @@ cp .envexample .env
 ```
 2. Set the correct values:
 ```
-BASE_URL=http://your-openwebui-instance:port
+BASE_URL=http://your-openwebui-instance:port/api # ‼️ Be sure to include the /api in the BASE_URL!
 OPENWEBUI_API_KEY=your_api_key_here
 ```
 ---
