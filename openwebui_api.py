@@ -203,7 +203,7 @@ if __name__ == "__main__":
         # print(f"{response.success} - {response.message}")
 
         # # Example uploading a file
-        # new_file = api.upload_file("/mnt/c/Users/johnf/Downloads/Productivity Business Action Plan.docx")
+        # new_file = api.upload_file("SOME_FILE_PATH")
         # if new_file.success:
         #     print(f"Success - {new_file.id}")
         # else:
