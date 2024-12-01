@@ -153,3 +153,48 @@ if new_file.success:
 else:
     print(f"Failed - {new_file.message}")
 ```
+
+### List all knowlege
+```python
+from openwebui_client import OpenWebUI
+
+# Initialize the client
+client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
+
+response = client.get_knowledge()
+for knowledge in response:
+    print(f"""
+    Found {knowledge.name} {knowledge.id}:
+    Description: {knowledge.description}
+    Files: {len(knowledge.files)} files
+    """)
+```
+
+### Get knowledge by id
+```python
+from openwebui_client import OpenWebUI
+
+# Initialize the client
+client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
+
+knowledge = client..get_knowledge_by_id("KNOWLEDGE_ID")
+print(f"""
+Found {knowledge.name} {knowledge.id}:
+Description: {knowledge.description}
+Files: {len(knowledge.files)} files
+""")
+```
+
+### Add file to knowledge
+```python
+from openwebui_client import OpenWebUI
+
+# Initialize the client
+client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
+
+knowledge = client.add_file_to_knowledge("some_knowledge_id", "some_file_id")
+if isinstance(knowledge, ValidationErrorItem):
+    print(knowledge.message)
+else:
+    print(f"Added file {new_file.id} to knowledge {knowledge.id}")
+```

@@ -3,6 +3,7 @@
 from models.chat_completion import *
 from models.model import *
 from models.files import *
+from models.knowledge import *
 import os, json, requests, pprint
 from dotenv import load_dotenv
 
@@ -16,7 +17,7 @@ class OpenWebUI:
         "Accept": "application/json"
     }
 
-    # methods
+    #region MODEL METHODS
     def get_models(self) -> list[Model]:
         '''
         Gets all of the available models
@@ -32,7 +33,9 @@ class OpenWebUI:
                 item['info'] = Info(**item['info']) if item.get('info') else None
                 models.append(Model(**item))
             return models
-
+    #endregion
+    
+    #region CHAT METHODS
     def get_chat_completion(self, model_id: str, prompt: str) -> ChatCompletion:
         '''
         Gets a basic chat completion from openwebui provided a model_id and prompt.
@@ -73,7 +76,9 @@ class OpenWebUI:
             return ChatCompletion(**data)
         else:
             raise Exception(f"Failed to get chat completion: {response.status_code}")
-        
+    #endregion
+
+    #region FILE METHODS
     def get_files(self) -> list[OpenWebFile]:
         '''
         Get all of the files!
@@ -153,28 +158,76 @@ class OpenWebUI:
             data['success'] = False
             data['message'] = data['detail']
             return ValidationErrorItem(**data)
+    #endregion
 
-        
+    #region KNOWLEDGE METHODS
+    def get_knowledge(self) -> list[Knowledge]:
+        '''
+        Get all knowledge items
+        '''
+        response = requests.get(f"{self.base_url}/v1/knowledge", headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            knowledges = []
+            for item in data:
+                knowledges.append(Knowledge(**item))
+            return knowledges
+
+    def get_knowledge_by_id(self, id):
+        '''
+        Get a single knowledge item by id
+        '''
+        response = requests.get(f"{self.base_url}/v1/knowledge/{id}", headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            return Knowledge(**data)
+        else:
+            data = response.json()
+            data['success'] = False
+            return ValidationErrorItem(**data)
+
+    def add_file_to_knowledge(self, knowledge_id, file_id):
+        '''
+        Add a file to a knowledge item
+        '''
+        payload = {'file_id': file_id}
+        response = requests.post(f"{self.base_url}/v1/knowledge/{knowledge_id}/file/add", json=payload, headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            return Knowledge(**data)
+        else:
+            data = response.json()
+            data['success'] = False
+            data['message'] = data['detail']
+            return ValidationErrorItem(**data)
+
+    #endregion
+
 
 # Example usage
 if __name__ == "__main__":
     api = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
     
     try:
+        #region MODEL EXAMPLES
         # # Example getting model and id
         # models = api.get_models()
         # for model in models:
         #     print(model)
         #     break
+        #endregion
         
-        # Example using chat completion
-        completion = api.get_chat_completion('llama3.2:latest', 'Repeat this phrase exactly: OpenWebUI is awesome!')
-        pprint.pprint(completion.choices[0].message.content)
+        #region CHAT EXAMPLES
+        # # Example using chat completion
+        # completion = api.get_chat_completion('llama3.2:latest', 'Repeat this phrase exactly: OpenWebUI is awesome!')
+        # pprint.pprint(completion.choices[0].message.content)
 
         # # Example chat with file
         # completion = api.chat_with_file('llama3.2:latest', "What is this document?", "05094421-5b5a-43da-9c56-ddc054945fac")
         # print(completion.choices[0].message.content)
+        #endregion
         
+        #region FILES EXAMPLES
         # # Example getting all files
         # files = api.get_files()
         # for file in files:
@@ -185,7 +238,7 @@ if __name__ == "__main__":
         # print(single_file.data.content)
 
         # # Example deleting a single file by id
-        # response = api.delete_file_by_id("4ec052e0-5470-49b6-af5d-8239ac268d7a")
+        # response = api.delete_file_by_id("a521753e-9223-47f7-a9d6-deae48a9f0df")
         # print(f"{response.success} - {response.message}")
 
         # # Example bulk deleting files by their id
@@ -203,11 +256,43 @@ if __name__ == "__main__":
         # print(f"{response.success} - {response.message}")
 
         # # Example uploading a file
-        # new_file = api.upload_file("SOME_FILE_PATH")
+        # new_file = api.upload_file("some_file_path")
         # if new_file.success:
         #     print(f"Success - {new_file.id}")
         # else:
         #     print(f"Failed - {new_file.message}")
+        
+        #endregion
+
+        #region KNOWLEDGE EXAMPLES
+        # # Example getting knowledge
+        # response = api.get_knowledge()
+        # for knowledge in response:
+        #     print(f"""
+        #     Found {knowledge.name} {knowledge.id}:
+        #     Description: {knowledge.description}
+        #     Files: {len(knowledge.files)} files
+        #     """)
+
+        # # Example getting a single knowledge item by id
+        # knowledge = api.get_knowledge_by_id("dd659ea6-57be-422f-9db9-e6ff265bf7cb")
+        # if isinstance(knowledge, ValidationErrorItem):
+        #     print(knowledge.detail)
+        # else:
+        #     print(f"""
+        #     Retrieved {knowledge.name} {knowledge.id}:
+        #     Description: {knowledge.description}
+        #     Files: {len(knowledge.files)} files
+        #     """)
+
+        # # Example adding file to knowledge
+        # knowledge = api.add_file_to_knowledge("dd659ea6-57be-422f-9db9-e6ff265bf7cb", new_file.id)
+        # if isinstance(knowledge, ValidationErrorItem):
+        #     print(knowledge.message)
+        # else:
+        #     print(f"Added file {new_file.id} to knowledge {knowledge.id}")
+
+        #endregion
 
     except Exception as e:
         print(e)
