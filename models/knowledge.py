@@ -11,6 +11,14 @@ class User:
     email: str
     role: str
     profile_image_url: str
+    last_active_at: Optional[int]
+    updated_at: Optional[int]
+    created_at: Optional[int]
+    api_key: Optional[str] = None
+    settings: Dict[str, Any] = field(default_factory=dict)
+    info: Dict[str, Any] = field(default_factory=dict)
+    oauth_sub: Optional[str] = None
+
 
 @dataclass
 class Knowledge:

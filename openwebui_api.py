@@ -186,12 +186,17 @@ class OpenWebUI:
             data['success'] = False
             return ValidationErrorItem(**data)
 
-    def add_file_to_knowledge(self, knowledge_id, file_id):
+    def add_remove_file_to_knowledge(self, knowledge_id, file_id, addRemove):
         '''
-        Add a file to a knowledge item
+        Add or remove a file to a knowledge item
         '''
         payload = {'file_id': file_id}
-        response = requests.post(f"{self.base_url}/v1/knowledge/{knowledge_id}/file/add", json=payload, headers=self.headers)
+        if addRemove:
+            url = f"{self.base_url}/v1/knowledge/{knowledge_id}/file/add"
+        else:
+            url = f"{self.base_url}/v1/knowledge/{knowledge_id}/file/remove"
+
+        response = requests.post(url, json=payload, headers=self.headers)
         if response.status_code == 200:
             data = response.json()
             return Knowledge(**data)
@@ -203,6 +208,35 @@ class OpenWebUI:
 
     #endregion
 
+    #region USER METHODS
+    def get_users(self) -> list[User]:
+        '''
+        Get all users
+        '''
+        response = requests.get(f"{self.base_url}/v1/users/", headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            users = []
+            for item in data:
+                users.append(User(**item))
+            return users
+
+    #endregion
+
+    #region AUDIO METHODS
+    def transcribe_audio(self, audio_file_path: str):
+        '''
+        Transcribe audio file
+        '''
+        files = {'file': open(audio_file_path, 'rb')}
+        response = requests.post(f"{self.base_url}/audio/api/v1/transcriptions", headers=self.headers, files=files)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return response.json()
+
+
+    #endregion
 
 # Example usage
 if __name__ == "__main__":
@@ -286,7 +320,7 @@ if __name__ == "__main__":
         #     """)
 
         # # Example adding file to knowledge
-        # knowledge = api.add_file_to_knowledge("dd659ea6-57be-422f-9db9-e6ff265bf7cb", new_file.id)
+        # knowledge = api.add_remove_file_to_knowledge("dd659ea6-57be-422f-9db9-e6ff265bf7cb", new_file.id, True)
         # if isinstance(knowledge, ValidationErrorItem):
         #     print(knowledge.message)
         # else:
@@ -294,5 +328,16 @@ if __name__ == "__main__":
 
         #endregion
 
+        #region USER EXAMPLES
+        users = api.get_users()
+        for user in users:
+            print(f"User: {user.name} - {user.role} - {user.created_at} - {user.id}")
+        #endregion
+    
+        #region AUDIO EXAMPLES
+        # # Example transcribing audio file
+        # response = api.transcribe_audio("audio_file_path")
+        # pprint.pprint(response)
+        #endregion
     except Exception as e:
         print(e)

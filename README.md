@@ -185,16 +185,37 @@ Files: {len(knowledge.files)} files
 """)
 ```
 
-### Add file to knowledge
+### Add or remove file to knowledge
 ```python
 from openwebui_client import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
 
-knowledge = client.add_file_to_knowledge("some_knowledge_id", "some_file_id")
+# Add file
+knowledge = client.add_remove_file_to_knowledge("some_knowledge_id", "some_file_id")
+if isinstance(knowledge, ValidationErrorItem):
+    print(knowledge.message)
+else:
+    print(f"Added file {new_file.id} to knowledge {knowledge.id}", True)
+
+# Remove file
+knowledge = client.add_remove_file_to_knowledge("some_knowledge_id", "some_file_id", False)
 if isinstance(knowledge, ValidationErrorItem):
     print(knowledge.message)
 else:
     print(f"Added file {new_file.id} to knowledge {knowledge.id}")
+```
+
+### List users
+```python
+from openwebui_client import OpenWebUI
+
+# Initialize the client
+client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
+
+# List users
+users = client.get_users()
+for user in users:
+    print(f"User: {user.name} - {user.role} - {user.created_at} - {user.id}")
 ```
