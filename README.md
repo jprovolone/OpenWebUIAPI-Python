@@ -61,23 +61,6 @@ response = client.create_chat_completion(
 print(response.choices[0].message.content)
 ```
 
-### Chat Completion
-```python
-from openwebui_client import OpenWebUI
-
-# Initialize the client
-client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
-
-# Create a chat completion
-response = client.create_chat_completion(
-    model="llama3.2:latest", # Use model id here, not the name
-    messages=[
-        {"role": "user", "content": "Hello, how are you?"}
-        ]
-    )
-print(response.choices[0].message.content)
-```
-
 ### Chat Completion (with files)
 ```python
 from openwebui_client import OpenWebUI
