@@ -8,3 +8,7 @@ venv
 # environment
 .env
 output.txt
+
+
+# package
+openwebui_python.egg-info
