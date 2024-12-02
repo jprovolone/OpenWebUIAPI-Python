@@ -1,12 +1,13 @@
 # models.py
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 @dataclass
 class Message:
     content: str
     role: str
+    refusal: Optional[Any] = None
 
 @dataclass
 class Choice:
@@ -22,6 +23,8 @@ class ChatCompletion:
     object: str
     created: int
     choices: List[Choice]
+    usage: Optional[Dict[str, Any]] = None
+    system_fingerprint: Optional[str] = None
 
 @dataclass
 class ChatWithFile:

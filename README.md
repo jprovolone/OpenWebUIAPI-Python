@@ -52,7 +52,7 @@ from openwebui_client import OpenWebUI
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
 
 # Create a chat completion
-response = client.create_chat_completion(
+response = client.get_chat_completion(
     model="llama3.2:latest", # Use model id here, not the name
     messages=[
         {"role": "user", "content": "Hello, how are you?"}
