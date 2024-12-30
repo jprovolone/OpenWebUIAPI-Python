@@ -54,9 +54,10 @@ class OpenWebUI:
             data['choices'] = choices
             return ChatCompletion(**data)
         else:
+            print(response)
             raise Exception(f"Failed to get chat completion: {response.status_code}")
         
-    def get_chat_completion(self, model_id: str, messages) -> ChatCompletion:
+    def get_chat_completion_with_messages(self, model_id: str, messages) -> ChatCompletion:
         '''
         Gets a basic chat completion from openwebui provided a model_id and a set of messages.
         '''
@@ -64,6 +65,7 @@ class OpenWebUI:
             "model": model_id,
             "messages": messages
         }
+        print(payload)  
         response = requests.post(f"{self.base_url}/chat/completions", json=payload, headers=self.headers)
         if response.status_code == 200:
             data = response.json()
@@ -267,13 +269,12 @@ if __name__ == "__main__":
         # # Example getting model and id
         # models = api.get_models()
         # for model in models:
-        #     print(model)
-        #     break
+        #     print(model.name)
         #endregion
         
         #region CHAT EXAMPLES
-        # # Example using chat completion
-        # completion = api.get_chat_completion('llama3.2:latest', 'Repeat this phrase exactly: OpenWebUI is awesome!')
+        # Example using chat completion
+        # completion = api.get_chat_completion('gpt-4o', 'Repeat this phrase exactly: OpenWebUI is awesome!')
         # pprint.pprint(completion.choices[0].message.content)
 
         # # Example using chat completion with preloaded messages

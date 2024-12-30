@@ -13,3 +13,5 @@ output.txt
 # package
 openwebui_python.egg-info
 openwebui_api.egg-info
+build/
+dist/
