@@ -1,6 +1,6 @@
 # OpenWebUI API Python Client
 
-A Python client for interacting with OpenWebUI's API, providing easy access to language models and chat completions.
+An unofficial python client for interacting with OpenWebUI's API, providing easy access to language models and chat completions.
 
 ## Features
 
