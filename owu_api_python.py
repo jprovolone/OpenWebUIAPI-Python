@@ -4,26 +4,42 @@ from models.chat_completion import *
 from models.model import *
 from models.files import *
 from models.knowledge import *
-import os, json, requests, pprint
+import os, json, requests, pprint, logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('OpenWebUI')
+
 class OpenWebUI:
     def __init__(self, base_url: str, api_key: str):
-        self.base_url = base_url
+        if not base_url:
+            raise ValueError("base_url cannot be empty")
+        if not api_key:
+            raise ValueError("api_key cannot be empty")
+            
+        self.base_url = base_url.rstrip('/')  # Remove trailing slash if present
         self.headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Accept": "application/json"
-    }
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "application/json"
+        }
+        logger.info(f"Initialized OpenWebUI client with base URL: {base_url}")
 
     #region MODEL METHODS
     def get_models(self) -> list[Model]:
         '''
         Gets all of the available models
         '''
-        response = requests.get(f"{self.base_url}/models", headers=self.headers)
-        if response.status_code == 200:
+        logger.info("Fetching available models")
+        try:
+            response = requests.get(f"{self.base_url}/models", headers=self.headers)
+            response.raise_for_status()
+            
             data = response.json().get('data', [])
             models = []
             for item in data:
@@ -32,7 +48,12 @@ class OpenWebUI:
                 item['openai'] = OpenAI(**item['openai']) if item.get('openai') else None
                 item['info'] = Info(**item['info']) if item.get('info') else None
                 models.append(Model(**item))
+            
+            logger.info(f"Successfully retrieved {len(models)} models")
             return models
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch models: {str(e)}")
+            raise Exception(f"Failed to fetch models: {str(e)}")
     #endregion
     
     #region CHAT METHODS
@@ -40,67 +61,99 @@ class OpenWebUI:
         '''
         Gets a basic chat completion from openwebui provided a model_id and prompt.
         '''
-        payload = {
-            "model": model_id,
-            "messages": [{"role": "user", "content": prompt}]
-        }
-        response = requests.post(f"{self.base_url}/chat/completions", json=payload, headers=self.headers)
-        if response.status_code == 200:
+        if not model_id:
+            raise ValueError("model_id cannot be empty")
+        if not prompt:
+            raise ValueError("prompt cannot be empty")
+            
+        logger.info(f"Requesting chat completion for model: {model_id}")
+        try:
+            payload = {
+                "model": model_id,
+                "messages": [{"role": "user", "content": prompt}]
+            }
+            response = requests.post(f"{self.base_url}/chat/completions", json=payload, headers=self.headers)
+            response.raise_for_status()
+            
             data = response.json()
             choices = []
             for item in data.get('choices', []):
                 item['message'] = Message(**item['message'])
                 choices.append(Choice(**item))
             data['choices'] = choices
+            
+            logger.info("Successfully received chat completion")
             return ChatCompletion(**data)
-        else:
-            print(response)
-            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get chat completion: {str(e)}")
+            raise Exception(f"Failed to get chat completion: {str(e)}")
         
     def get_chat_completion_with_messages(self, model_id: str, messages) -> ChatCompletion:
-        payload = {
-            "model": model_id,
-            "messages": messages
-        }
-        
-        response = requests.post(
-            f"{self.base_url}/chat/completions",
-            json=payload,
-            headers=self.headers
-        )
-        
-        # Check if status code specifically indicates a problem
-        if response.status_code == 200:
+        if not model_id:
+            raise ValueError("model_id cannot be empty")
+        if not messages or not isinstance(messages, list):
+            raise ValueError("messages must be a non-empty list")
+            
+        logger.info(f"Requesting chat completion with messages for model: {model_id}")
+        try:
+            payload = {
+                "model": model_id,
+                "messages": messages
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/chat/completions",
+                json=payload,
+                headers=self.headers
+            )
+            response.raise_for_status()
+            
             data = response.json()
             choices = []
             for item in data.get('choices', []):
                 item['message'] = Message(**item['message'])
                 choices.append(Choice(**item))
             data['choices'] = choices
+            
+            logger.info("Successfully received chat completion with messages")
             return ChatCompletion(**data)
-        else:
-            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get chat completion with messages: {str(e)}")
+            raise Exception(f"Failed to get chat completion with messages: {str(e)}")
     
-    def chat_with_file(self, model, query, file_id) -> ChatCompletion:
+    def chat_with_file(self, model: str, query: str, file_id: str) -> ChatCompletion:
         '''
         Chat with or about a specific file. Must upload a file or have a file id first
         '''
-        payload = {
-            'model': model,
-            'messages': [{'role': 'user', 'content': query}],
-            'files': [{'type': 'file', 'id': file_id}]
-        }
-        response = requests.post(f"{self.base_url}/chat/completions", headers=self.headers, json=payload)
-        if response.status_code == 200:
+        if not model:
+            raise ValueError("model cannot be empty")
+        if not query:
+            raise ValueError("query cannot be empty")
+        if not file_id:
+            raise ValueError("file_id cannot be empty")
+            
+        logger.info(f"Requesting chat completion with file {file_id}")
+        try:
+            payload = {
+                'model': model,
+                'messages': [{'role': 'user', 'content': query}],
+                'files': [{'type': 'file', 'id': file_id}]
+            }
+            response = requests.post(f"{self.base_url}/chat/completions", headers=self.headers, json=payload)
+            response.raise_for_status()
+            
             data = response.json()
             choices = []
             for item in data.get('choices', []):
                 item['message'] = Message(**item['message'])
                 choices.append(Choice(**item))
             data['choices'] = choices
+            
+            logger.info("Successfully received chat completion with file")
             return ChatCompletion(**data)
-        else:
-            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get chat completion with file: {str(e)}")
+            raise Exception(f"Failed to get chat completion with file: {str(e)}")
     #endregion
 
     #region FILE METHODS
@@ -108,81 +161,136 @@ class OpenWebUI:
         '''
         Get all of the files!
         '''
-        response = requests.get(f"{self.base_url}/v1/files", headers=self.headers)
-        if response.status_code == 200:
+        logger.info("Fetching all files")
+        try:
+            response = requests.get(f"{self.base_url}/v1/files", headers=self.headers)
+            response.raise_for_status()
+            
             files = []
             data = response.json()
             for item in data:
                 item['meta'] = Meta(**item['meta'])
                 item['data'] = FileData(**item['data'])
                 files.append(OpenWebFile(**item))
+            
+            logger.info(f"Successfully retrieved {len(files)} files")
             return files
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch files: {str(e)}")
+            raise Exception(f"Failed to fetch files: {str(e)}")
     
-    def get_file_by_id(self, id) -> OpenWebFile:
+    def get_file_by_id(self, id: str) -> OpenWebFile:
         '''
         Get a single file by id
         '''
-        response = requests.get(f"{self.base_url}/v1/files/{id}", headers=self.headers)
-        if response.status_code == 200:
+        if not id:
+            raise ValueError("id cannot be empty")
+            
+        logger.info(f"Fetching file with id: {id}")
+        try:
+            response = requests.get(f"{self.base_url}/v1/files/{id}", headers=self.headers)
+            response.raise_for_status()
+            
             data = response.json()
             data['meta'] = Meta(**data['meta'])
             data['data'] = FileData(**data['data'])
+            
+            logger.info(f"Successfully retrieved file: {data.get('filename', id)}")
             return OpenWebFile(**data)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch file {id}: {str(e)}")
+            raise Exception(f"Failed to fetch file {id}: {str(e)}")
         
-    def delete_file_by_id(self, id) -> ValidationErrorItem:
+    def delete_file_by_id(self, id: str) -> ValidationErrorItem:
         '''
         Delete a single file by id
         '''
-        response = requests.delete(f"{self.base_url}/v1/files/{id}", headers=self.headers)
-        if response.status_code == 200:
+        if not id:
+            raise ValueError("id cannot be empty")
+            
+        logger.info(f"Deleting file with id: {id}")
+        try:
+            response = requests.delete(f"{self.base_url}/v1/files/{id}", headers=self.headers)
             data = response.json()
-            data['success'] = True
+            
+            if response.status_code == 200:
+                data['success'] = True
+                logger.info(f"Successfully deleted file: {id}")
+            else:
+                data['success'] = False
+                data['message'] = data.get('detail', 'Unknown error occurred')
+                logger.warning(f"Failed to delete file {id}: {data['message']}")
+                
             return ValidationErrorItem(**data)
-        else:
-            data = response.json()
-            data['success'] = False
-            data['message'] = data['detail']
-            return ValidationErrorItem(**data)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to delete file {id}: {str(e)}")
+            raise Exception(f"Failed to delete file {id}: {str(e)}")
     
-    def update_file_content_by_id(self, id, new_content):
+    def update_file_content_by_id(self, id: str, new_content: str) -> ValidationErrorItem:
         '''
         Update file content by id
         '''
-        payload = {
-            'content': new_content
-        }
-        response = requests.post(
-            f"{self.base_url}/v1/files/{id}/data/content/update", 
-            json=payload, 
-            headers=self.headers)
-        
-        if response.status_code == 200:
+        if not id:
+            raise ValueError("id cannot be empty")
+        if new_content is None:  # Allow empty string but not None
+            raise ValueError("new_content cannot be None")
+            
+        logger.info(f"Updating content for file with id: {id}")
+        try:
+            payload = {
+                'content': new_content
+            }
+            response = requests.post(
+                f"{self.base_url}/v1/files/{id}/data/content/update", 
+                json=payload, 
+                headers=self.headers)
+            
             data = response.json()
             
-            data['success'] = True
+            if response.status_code == 200:
+                data['success'] = True
+                logger.info(f"Successfully updated file content: {id}")
+            else:
+                data['success'] = False
+                data['message'] = data.get('detail', 'Unknown error occurred')
+                logger.warning(f"Failed to update file {id}: {data['message']}")
+                
             return ValidationErrorItem(**data)
-        else:
-            data = response.json()
-            data['success'] = False
-            data['message'] = data['detail']
-            return ValidationErrorItem(**data)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to update file {id}: {str(e)}")
+            raise Exception(f"Failed to update file {id}: {str(e)}")
         
-    def upload_file(self, file_path):
+    def upload_file(self, file_path: str):
         '''
         Upload a file
         '''
-        files = {'file': open(file_path, 'rb')}
-        response = requests.post(f"{self.base_url}/v1/files/", headers=self.headers, files=files)
-        data = response.json()
-        if response.status_code == 200:
-            data['success'] = True
-            data['meta'] = Meta(**data['meta'])
-            data['data'] = FileData(**data['data'])
-            return OpenWebFile(**data)
-        else:
-            data['success'] = False
-            data['message'] = data['detail']
-            return ValidationErrorItem(**data)
+        if not file_path:
+            raise ValueError("file_path cannot be empty")
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+            
+        logger.info(f"Uploading file: {file_path}")
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': f}
+                response = requests.post(f"{self.base_url}/v1/files/", headers=self.headers, files=files)
+                
+            data = response.json()
+            
+            if response.status_code == 200:
+                data['success'] = True
+                data['meta'] = Meta(**data['meta'])
+                data['data'] = FileData(**data['data'])
+                logger.info(f"Successfully uploaded file: {os.path.basename(file_path)}")
+                return OpenWebFile(**data)
+            else:
+                data['success'] = False
+                data['message'] = data.get('detail', 'Unknown error occurred')
+                logger.warning(f"Failed to upload file {file_path}: {data['message']}")
+                return ValidationErrorItem(**data)
+        except Exception as e:
+            logger.error(f"Failed to upload file {file_path}: {str(e)}")
+            raise Exception(f"Failed to upload file {file_path}: {str(e)}")
     #endregion
 
     #region KNOWLEDGE METHODS
@@ -190,46 +298,75 @@ class OpenWebUI:
         '''
         Get all knowledge items
         '''
-        response = requests.get(f"{self.base_url}/v1/knowledge", headers=self.headers)
-        if response.status_code == 200:
+        logger.info("Fetching all knowledge items")
+        try:
+            response = requests.get(f"{self.base_url}/v1/knowledge", headers=self.headers)
+            response.raise_for_status()
+            
             data = response.json()
             knowledges = []
             for item in data:
                 knowledges.append(Knowledge(**item))
+            
+            logger.info(f"Successfully retrieved {len(knowledges)} knowledge items")
             return knowledges
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch knowledge items: {str(e)}")
+            raise Exception(f"Failed to fetch knowledge items: {str(e)}")
 
-    def get_knowledge_by_id(self, id):
+    def get_knowledge_by_id(self, id: str):
         '''
         Get a single knowledge item by id
         '''
-        response = requests.get(f"{self.base_url}/v1/knowledge/{id}", headers=self.headers)
-        if response.status_code == 200:
+        if not id:
+            raise ValueError("id cannot be empty")
+            
+        logger.info(f"Fetching knowledge item with id: {id}")
+        try:
+            response = requests.get(f"{self.base_url}/v1/knowledge/{id}", headers=self.headers)
             data = response.json()
-            return Knowledge(**data)
-        else:
-            data = response.json()
-            data['success'] = False
-            return ValidationErrorItem(**data)
+            
+            if response.status_code == 200:
+                logger.info(f"Successfully retrieved knowledge item: {id}")
+                return Knowledge(**data)
+            else:
+                data['success'] = False
+                logger.warning(f"Failed to fetch knowledge item {id}: {data.get('detail', 'Unknown error')}")
+                return ValidationErrorItem(**data)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch knowledge item {id}: {str(e)}")
+            raise Exception(f"Failed to fetch knowledge item {id}: {str(e)}")
 
-    def add_remove_file_to_knowledge(self, knowledge_id, file_id, addRemove):
+    def add_remove_file_to_knowledge(self, knowledge_id: str, file_id: str, addRemove: bool):
         '''
         Add or remove a file to a knowledge item
         '''
-        payload = {'file_id': file_id}
-        if addRemove:
-            url = f"{self.base_url}/v1/knowledge/{knowledge_id}/file/add"
-        else:
-            url = f"{self.base_url}/v1/knowledge/{knowledge_id}/file/remove"
+        if not knowledge_id:
+            raise ValueError("knowledge_id cannot be empty")
+        if not file_id:
+            raise ValueError("file_id cannot be empty")
+            
+        action = "Adding" if addRemove else "Removing"
+        logger.info(f"{action} file {file_id} to/from knowledge item {knowledge_id}")
+        
+        try:
+            payload = {'file_id': file_id}
+            url = f"{self.base_url}/v1/knowledge/{knowledge_id}/file/{'add' if addRemove else 'remove'}"
 
-        response = requests.post(url, json=payload, headers=self.headers)
-        if response.status_code == 200:
+            response = requests.post(url, json=payload, headers=self.headers)
             data = response.json()
-            return Knowledge(**data)
-        else:
-            data = response.json()
-            data['success'] = False
-            data['message'] = data['detail']
-            return ValidationErrorItem(**data)
+            
+            if response.status_code == 200:
+                logger.info(f"Successfully {action.lower()}ed file {file_id} {'to' if addRemove else 'from'} knowledge item {knowledge_id}")
+                return Knowledge(**data)
+            else:
+                data['success'] = False
+                data['message'] = data.get('detail', 'Unknown error occurred')
+                logger.warning(f"Failed to {action.lower()} file: {data['message']}")
+                return ValidationErrorItem(**data)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to {action.lower()} file: {str(e)}")
+            raise Exception(f"Failed to {action.lower()} file: {str(e)}")
 
     #endregion
 
@@ -238,13 +375,21 @@ class OpenWebUI:
         '''
         Get all users
         '''
-        response = requests.get(f"{self.base_url}/v1/users/", headers=self.headers)
-        if response.status_code == 200:
+        logger.info("Fetching all users")
+        try:
+            response = requests.get(f"{self.base_url}/v1/users/", headers=self.headers)
+            response.raise_for_status()
+            
             data = response.json()
             users = []
             for item in data:
                 users.append(User(**item))
+            
+            logger.info(f"Successfully retrieved {len(users)} users")
             return users
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to fetch users: {str(e)}")
+            raise Exception(f"Failed to fetch users: {str(e)}")
 
     #endregion
 
@@ -253,13 +398,27 @@ class OpenWebUI:
         '''
         Transcribe audio file
         '''
-        files = {'file': open(audio_file_path, 'rb')}
-        response = requests.post(f"{self.base_url}/audio/api/v1/transcriptions", headers=self.headers, files=files)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return response.json()
-
+        if not audio_file_path:
+            raise ValueError("audio_file_path cannot be empty")
+        if not os.path.exists(audio_file_path):
+            raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
+            
+        logger.info(f"Transcribing audio file: {audio_file_path}")
+        try:
+            with open(audio_file_path, 'rb') as f:
+                files = {'file': f}
+                response = requests.post(f"{self.base_url}/audio/api/v1/transcriptions", headers=self.headers, files=files)
+                
+            if response.status_code == 200:
+                logger.info("Successfully transcribed audio file")
+                return response.json()
+            else:
+                error_msg = f"Failed to transcribe audio: {response.text}"
+                logger.error(error_msg)
+                return {"error": error_msg}
+        except Exception as e:
+            logger.error(f"Failed to transcribe audio file: {str(e)}")
+            raise Exception(f"Failed to transcribe audio file: {str(e)}")
 
     #endregion
 
@@ -373,4 +532,5 @@ if __name__ == "__main__":
         # pprint.pprint(response)
         #endregion
     except Exception as e:
-        print(e)
+        logger.error(f"Error in main: {str(e)}")
+        print(f"Error: {str(e)}")
