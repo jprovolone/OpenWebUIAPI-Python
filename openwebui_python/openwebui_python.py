@@ -435,23 +435,24 @@ if __name__ == "__main__":
     try:
         #region MODEL EXAMPLES
         # Example getting model and id
-        # models = api.get_models()
-        # for model in models:
-        #     print(model.name)
+        models = api.get_models()
+        for model in models:
+            print(model.id)
         #endregion
         
         #region CHAT EXAMPLES
-        # Example using chat completion
-        completion = api.get_chat_completion('meta-llama/llama-3.1-405b-instruct:free', 'Repeat this phrase exactly: OpenWebUI is awesome!')
-        pprint.pprint(completion.choices[0].message.content)
+        # # Example using chat completion
+        # completion = api.get_chat_completion('meta-llama/llama-3.1-405b-instruct:free', 'Repeat this phrase exactly: OpenWebUI is awesome!')
+        # pprint.pprint(completion.choices[0].message.content)
 
         # # Example using chat completion with preloaded messages
         # with open("test.json", "r") as file:
         #     json_data = json.load(file)
         #     completion = api.get_chat_completion_with_messages(
-        #         'gpt-4o',
+        #         'qwen/qvq-72b-preview',
         #         messages = json_data
         #         )
+        #     pprint.pprint(completion)
         #     pprint.pprint(completion.choices[0].message.content)
 
         # # Example chat with file
@@ -527,9 +528,9 @@ if __name__ == "__main__":
         #endregion
 
         #region USER EXAMPLES
-        users = api.get_users()
-        for user in users:
-            print(f"User: {user.name} - {user.role} - {user.created_at} - {user.id}")
+        # users = api.get_users()
+        # for user in users:
+        #     print(f"User: {user.name} - {user.role} - {user.created_at} - {user.id}")
         #endregion
     
         #region AUDIO EXAMPLES

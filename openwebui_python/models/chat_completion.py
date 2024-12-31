@@ -1,6 +1,6 @@
 # models.py
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, MISSING
 from typing import List, Optional, Dict, Any
 
 @dataclass
@@ -11,18 +11,18 @@ class Message:
 
 @dataclass
 class Choice:
-    finish_reason: str
     index: int
     message: Message
     logprobs: Optional[Dict] = None
+    finish_reason: Optional[str] = None
 
 @dataclass
 class ChatCompletion:
-    id: str
-    model: str
-    object: str
-    created: int
     choices: List[Choice]
+    id: Optional[str] = None
+    model: Optional[str] = None
+    object: Optional[str] = None
+    created: Optional[int] = None
     usage: Optional[Dict[str, Any]] = None
     system_fingerprint: Optional[str] = None
     extra_fields: Dict[str, Any] = field(default_factory=dict)
@@ -42,9 +42,9 @@ class ChatCompletion:
         # Manage any defaults not passed explicitly
         for field, field_def in self.__dataclass_fields__.items():
             if field not in known_args and field != 'extra_fields':
-                if field_def.default_factory is not dataclasses.MISSING:
+                if field_def.default_factory is not MISSING:
                     super().__setattr__(field, field_def.default_factory())
-                elif field_def.default is not dataclasses.MISSING:
+                elif field_def.default is not MISSING:
                     super().__setattr__(field, field_def.default)
 
     def __post_init__(self):
