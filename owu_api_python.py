@@ -55,18 +55,21 @@ class OpenWebUI:
             return ChatCompletion(**data)
         else:
             print(response)
-            raise Exception(f"Failed to get chat completion: {response.status_code}")
+            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
         
     def get_chat_completion_with_messages(self, model_id: str, messages) -> ChatCompletion:
-        '''
-        Gets a basic chat completion from openwebui provided a model_id and a set of messages.
-        '''
         payload = {
             "model": model_id,
             "messages": messages
         }
-        print(payload)  
-        response = requests.post(f"{self.base_url}/chat/completions", json=payload, headers=self.headers)
+        
+        response = requests.post(
+            f"{self.base_url}/chat/completions",
+            json=payload,
+            headers=self.headers
+        )
+        
+        # Check if status code specifically indicates a problem
         if response.status_code == 200:
             data = response.json()
             choices = []
@@ -76,7 +79,7 @@ class OpenWebUI:
             data['choices'] = choices
             return ChatCompletion(**data)
         else:
-            raise Exception(f"Failed to get chat completion: {response.status_code}")
+            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
     
     def chat_with_file(self, model, query, file_id) -> ChatCompletion:
         '''
@@ -97,7 +100,7 @@ class OpenWebUI:
             data['choices'] = choices
             return ChatCompletion(**data)
         else:
-            raise Exception(f"Failed to get chat completion: {response.status_code}")
+            raise Exception(f"Failed to get chat completion: {response.status_code} - {response.text}")
     #endregion
 
     #region FILE METHODS
@@ -278,9 +281,9 @@ if __name__ == "__main__":
         # pprint.pprint(completion.choices[0].message.content)
 
         # # Example using chat completion with preloaded messages
-        # with open("file_with_preloaded_messages.json", "r") as file:
+        # with open("test.json", "r") as file:
         #     json_data = json.load(file)
-        #     completion = api.get_chat_completion(
+        #     completion = api.get_chat_completion_with_messages(
         #         'gpt-4o',
         #         messages = json_data
         #         )

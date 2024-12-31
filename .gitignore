@@ -8,7 +8,7 @@ venv
 # environment
 .env
 output.txt
-
+test.json
 
 # package
 openwebui_python.egg-info
