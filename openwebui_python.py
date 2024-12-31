@@ -428,14 +428,14 @@ if __name__ == "__main__":
     
     try:
         #region MODEL EXAMPLES
-        # # Example getting model and id
+        # Example getting model and id
         # models = api.get_models()
         # for model in models:
         #     print(model.name)
         #endregion
         
         #region CHAT EXAMPLES
-        # Example using chat completion
+        # # Example using chat completion
         # completion = api.get_chat_completion('gpt-4o', 'Repeat this phrase exactly: OpenWebUI is awesome!')
         # pprint.pprint(completion.choices[0].message.content)
 

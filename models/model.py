@@ -8,11 +8,37 @@ class Pipe:
     type: str
 
 @dataclass
+class Architecture:
+    instruct_type: Optional[str] = None
+    modality: Optional[str] = None
+    tokenizer: Optional[str] = None
+
+@dataclass
+class Pricing:
+    completion: Optional[str] = None
+    image: Optional[str] = None
+    prompt: Optional[str] = None
+    request: Optional[str] = None
+
+@dataclass
+class TopProvider:
+    context_length: Optional[int] = None
+    is_moderated: Optional[bool] = None
+    max_completion_tokens: Optional[int] = None
+
+@dataclass
 class OpenAI:
     created: int
     id: str
-    object: str
-    owned_by: str
+    name: Optional[str] = None
+    context_length: Optional[int] = None
+    architecture: Optional[Architecture] = None
+    pricing: Optional[Pricing] = None
+    top_provider: Optional[TopProvider] = None
+    description: Optional[str] = None
+    object: Optional[str] = None
+    owned_by: Optional[str] = None
+    per_request_limits: Optional[Dict[str, str]] = None
 
 @dataclass
 class Action:
@@ -79,3 +105,12 @@ class Model:
     info: Optional[Info] = None
     ollama: Optional[Ollama] = None
     preset: bool = False
+    description: Optional[str] = None
+    context_length: Optional[int] = None
+    architecture: Optional[Architecture] = None
+    pricing: Optional[Pricing] = None
+    top_provider: Optional[TopProvider] = None
+    description: Optional[str] = None
+    object: Optional[str] = None
+    owned_by: Optional[str] = None
+    per_request_limits: Optional[Dict[str, str]] = None
