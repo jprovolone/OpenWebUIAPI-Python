@@ -4,9 +4,33 @@ An unofficial python client for interacting with OpenWebUI's API, providing easy
 
 ## Features
 
-- Get available models with detailed information
-- Create chat completions using specified models
-- Structured data classes for type safety and better code organization
+- **Model Management**
+  - Get available models with detailed information
+  - Support for multiple model types (OpenAI, Ollama)
+  - Model metadata and configuration access
+  - Access control settings
+
+- **Chat Capabilities**
+  - Create chat completions using specified models
+  - Support for chat with file attachments
+  - Collection-based chat interactions
+  - Structured message handling
+
+- **File Operations**
+  - Upload and manage files
+  - File metadata handling
+  - File content updates
+  - Validation and error handling
+
+- **Knowledge Management**
+  - List and retrieve knowledge collections
+  - Add/remove files to knowledge bases
+  - User management and access control
+
+- **Type Safety**
+  - Structured data classes for better code organization
+  - Validation error handling
+  - Strong typing for API responses
 
 ## Installation
 
@@ -160,7 +184,7 @@ from openwebui_client import OpenWebUI
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
 
-knowledge = client..get_knowledge_by_id("KNOWLEDGE_ID")
+knowledge = client.get_knowledge_by_id("KNOWLEDGE_ID")
 print(f"""
 Found {knowledge.name} {knowledge.id}:
 Description: {knowledge.description}
@@ -202,3 +226,15 @@ users = client.get_users()
 for user in users:
     print(f"User: {user.name} - {user.role} - {user.created_at} - {user.id}")
 ```
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [COPYING](COPYING) file for details.
+
+The GNU GPL v3 is a strong copyleft license that requires any distributed modifications or derivative works to also be licensed under the GPL v3. This ensures that the software remains free and open source.
+
+Key points of the license:
+- You can use, modify, and distribute the software freely
+- Any modifications or derivative works must also be licensed under GPL v3
+- The source code must be made available when distributing the software
+- No warranty is provided with the software
