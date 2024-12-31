@@ -57,7 +57,7 @@ OPENWEBUI_API_KEY=your_api_key_here
 
 ### Get all models
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -70,7 +70,7 @@ for model in models:
 
 ### Chat Completion
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -87,7 +87,7 @@ print(response.choices[0].message.content)
 
 ### Chat Completion (with files)
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -99,7 +99,7 @@ print(completion.choices[0].message.content)
 
 ### List files
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -112,7 +112,7 @@ for file in files:
 
 ### Get single file by id
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -124,7 +124,7 @@ print(single_file.data.content)
 
 ### Delete a file
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -136,7 +136,7 @@ print(f"{response.success} - {response.message}")
 
 ### Update file content
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -148,7 +148,7 @@ print(f"{response.success} - {response.message}")
 
 ### Upload a new file
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -163,7 +163,7 @@ else:
 
 ### List all knowlege
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -179,7 +179,7 @@ for knowledge in response:
 
 ### Get knowledge by id
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -194,7 +194,7 @@ Files: {len(knowledge.files)} files
 
 ### Add or remove file to knowledge
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
@@ -216,7 +216,7 @@ else:
 
 ### List users
 ```python
-from openwebui_client import OpenWebUI
+from openwebui_python import OpenWebUI
 
 # Initialize the client
 client = OpenWebUI(os.getenv('BASE_URL'),os.getenv('OPENWEBUI_API_KEY'))
