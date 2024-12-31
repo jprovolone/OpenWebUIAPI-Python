@@ -1,2 +1,4 @@
-# your_library_name/__init__.py
-from .owu_api_python import OpenWebUI
+# openwebui_python/__init__.py
+from .openwebui_python import OpenWebUI
+
+__version__ = '0.0.1'
