@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='openwebui_python',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(),
     install_requires=install_requires,
     description='A Python client for interacting with OpenWebUI\'s API, providing easy access to language models and chat completions.',

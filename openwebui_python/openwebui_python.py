@@ -1,9 +1,15 @@
 # openwebui_api.py
 
-from models.chat_completion import *
-from models.model import *
-from models.files import *
-from models.knowledge import *
+if __name__ == "__main__":
+    from models.chat_completion import *
+    from models.model import *
+    from models.files import *
+    from models.knowledge import *
+else:
+    from .models.chat_completion import *
+    from .models.model import *
+    from .models.files import *
+    from .models.knowledge import *
 import os, json, requests, pprint, logging
 from dotenv import load_dotenv
 
@@ -435,9 +441,9 @@ if __name__ == "__main__":
         #endregion
         
         #region CHAT EXAMPLES
-        # # Example using chat completion
-        # completion = api.get_chat_completion('gpt-4o', 'Repeat this phrase exactly: OpenWebUI is awesome!')
-        # pprint.pprint(completion.choices[0].message.content)
+        # Example using chat completion
+        completion = api.get_chat_completion('meta-llama/llama-3.1-405b-instruct:free', 'Repeat this phrase exactly: OpenWebUI is awesome!')
+        pprint.pprint(completion.choices[0].message.content)
 
         # # Example using chat completion with preloaded messages
         # with open("test.json", "r") as file:
