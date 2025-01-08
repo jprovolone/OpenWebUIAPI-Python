@@ -1,5 +1,4 @@
-# /bin/bash
 
 rm -rf build dist openwebui_python.egg-info
 
-python setup.py sdist bdist_wheel
+python3 setup.py sdist bdist_wheel
