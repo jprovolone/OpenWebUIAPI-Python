@@ -80,6 +80,8 @@ class OpenAI:
     object: Optional[str] = None
     owned_by: Optional[str] = None
     per_request_limits: Optional[Dict[str, str]] = None
+    openai: Optional[str] = None
+    urlIdx: Optional[Any] = None
     extra_fields: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
